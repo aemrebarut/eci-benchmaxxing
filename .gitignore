@@ -7,3 +7,5 @@ third_party/
 out/
 data/*
 !data/SNAPSHOT.json
+!data/benchmark_data.zip
+!data/README.md

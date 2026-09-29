@@ -9,15 +9,15 @@ ECI fits `performance(m, b) = sigmoid(alpha_b * (C_m - D_b))` across models `m` 
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python scripts/get_data.py            # downloads Epoch's benchmark_data.zip
+.venv/bin/python scripts/get_data.py --check    # verifies data/benchmark_data.zip
 .venv/bin/python analysis/00_reproduce.py       # refits Epoch's baseline ECI
 ```
 
-Epoch republishes `benchmark_data.zip` as new results arrive. `data/SNAPSHOT.json` records the sha256 of the copy our results use; `scripts/get_data.py --check` compares a local copy against it.
+Epoch republishes `benchmark_data.zip` as new results arrive, so this repo includes the snapshot our results use (`data/benchmark_data.zip`, sha256 in `data/SNAPSHOT.json`). `scripts/get_data.py` without flags fetches the latest version instead.
 
 ## Credits
 
-- Benchmark data: [Epoch AI](https://epoch.ai/benchmarks), CC-BY 4.0.
+- Benchmark data: [Epoch AI](https://epoch.ai/benchmarks), CC-BY 4.0, redistributed unmodified in `data/`.
 - Baseline fitting code: [epoch-research/eci-public](https://github.com/epoch-research/eci-public), MIT, pinned in `requirements.txt`.
 
-This project is not affiliated with Epoch AI.
+Code in this repository is MIT licensed (see `LICENSE`). This project is not affiliated with Epoch AI.
