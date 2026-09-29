@@ -1,0 +1,5 @@
+eci @ git+https://github.com/epoch-research/eci-public@e937446cd8ac0e910ea578516b1cab2b00c06d25
+numpy>=2.0
+pandas>=2.2
+scipy>=1.13
+matplotlib>=3.9
