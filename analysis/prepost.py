@@ -173,10 +173,13 @@ GOOGLE = {"Google DeepMind", "Google DeepMind,Google", "Google"}
 
 
 def org_groups(df, mode="org"):
-    """Group label per cell: the organization ("org"), or ("gsplit") the same with Google's three organization names in
-    Epoch's data merged and split by family into Google DeepMind (Gemini) and Google DeepMind (Gemma)."""
+    """Group label per cell: the organization ("org"); ("gmerge") the same with Google's three organization names in
+    Epoch's data merged into Google DeepMind (all); or ("gsplit") merged and split by family into Google DeepMind
+    (Gemini) and Google DeepMind (Gemma)."""
     if mode == "org":
         return df.org
+    if mode == "gmerge":
+        return pd.Series(np.where(df.org.isin(GOOGLE), "Google DeepMind (all)", df.org), index=df.index)
     fam = np.select([df.Model.str.contains("Gemma"), df.Model.str.contains("Gemini")], ["Gemma", "Gemini"], "other")
     return pd.Series(np.where(df.org.isin(GOOGLE), "Google DeepMind (" + pd.Series(fam, index=df.index) + ")", df.org), index=df.index)
 

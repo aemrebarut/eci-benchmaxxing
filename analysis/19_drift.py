@@ -12,9 +12,10 @@ within-model contrast between benchmarks released before and after the model.
 
 Ridge 0.5 lam sum delta^2 + 0.5 mu sum kappa^2, (lam, mu) chosen jointly by 10-fold CV over cells (the folds of
 analysis/17_prepost.py; lam or mu = inf drops the term). Model code in analysis/prepost.py; SEs as in 17.
-Usage: python analysis/19_drift.py [org | gsplit]; "gsplit" merges Google's organization names and splits them into
-Gemini and Gemma (prepost.org_groups). Writes out/drift19<suffix>.md, _cv.csv, _groups.csv, _kappa.csv and
-out/figs/drift19<suffix>_cv.png, _delta.png, _kappa.png, suffix "" for org and "_gsplit" for gsplit."""
+Usage: python analysis/19_drift.py [org | gmerge | gsplit]; "gmerge" merges Google's organization names, "gsplit"
+merges them and splits them into Gemini and Gemma (prepost.org_groups). Writes out/drift19<suffix>.md, _cv.csv,
+_groups.csv, _kappa.csv and out/figs/drift19<suffix>_cv.png, _delta.png, _kappa.png, suffix "" for org and
+"_<mode>" otherwise."""
 import os, sys, time
 os.environ.update(OMP_NUM_THREADS="1", VECLIB_MAXIMUM_THREADS="1", OPENBLAS_NUM_THREADS="1")
 import numpy as np, pandas as pd
@@ -28,9 +29,10 @@ MUS = [1e-3, 1e-2, 0.1, 1, 3, 10, 30, 100, 1e3, np.inf]
 LAM_FE = 1e-3
 N_FOLDS, WORKERS = 10, 4
 MODE = sys.argv[1] if len(sys.argv) > 1 else "org"
-assert MODE in ("org", "gsplit"), MODE
-SUF = "" if MODE == "org" else "_gsplit"
-GOOG = ["Google DeepMind"] if MODE == "org" else ["Google DeepMind (Gemini)", "Google DeepMind (Gemma)"]
+assert MODE in ("org", "gmerge", "gsplit"), MODE
+SUF = "" if MODE == "org" else f"_{MODE}"
+GOOG = {"org": ["Google DeepMind"], "gmerge": ["Google DeepMind (all)"],
+        "gsplit": ["Google DeepMind (Gemini)", "Google DeepMind (Gemma)"]}[MODE]
 MAIN = ["OpenAI", "Anthropic"] + GOOG + ["Alibaba", "Meta AI", "DeepSeek", "xAI"]
 
 
@@ -153,7 +155,7 @@ if __name__ == "__main__":
          f"{PP.K} organizations with a delta, {PP.B} benchmarks with a drift kappa_j, {PP.n} cells. z_ij = gap centred "
          f"within the benchmark (sd over cells {PP.df.z.std():.2f} years).", "",
          (f"No-drift row (mu = inf) against analysis/17_prepost.py org: max |CV SSE difference| {check17:.1e}. " if MODE == "org" else
-          f"Groups: organizations with Google's names merged and split by family ({', '.join(GOOG)}). ") +
+          f"Groups: organizations with Google's names merged{' and split by family' if MODE == 'gsplit' else ''} ({', '.join(GOOG)}). ") +
          f"Fits with a non-positive solver status: {bad or 'none'}.", "",
          "## Joint CV over (lam, mu): CV SSE minus the no-delta, no-drift model (Epoch's), folds better of 10", "",
          "| mu \\ lam | " + " | ".join("none" if not np.isfinite(l) else f"{l:g}" for l in LAMS) + " |",

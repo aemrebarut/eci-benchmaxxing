@@ -2,7 +2,7 @@
 its CV choice mu), for the near-unpenalized fit (lam 1e-3) and the CV ridge. Each organization's estimate is shown as
 a point with +-1 and +-2 SE and as its normal sampling distribution N(delta, SE^2), SE the larger of the clustered
 and model-based SEs. ECI points in each fit's own scale (b differs with the drift); z = delta / SE is scale-free.
-Usage: python analysis/20_tau_dist.py [org | gsplit] (the grouping of analysis/19_drift.py). Reads
+Usage: python analysis/20_tau_dist.py [org | gmerge | gsplit] (the grouping of analysis/19_drift.py). Reads
 out/drift19<suffix>_groups.csv and _cv.csv; writes out/tau20<suffix>.md and out/figs/tau20<suffix>_near.png, _cv.png."""
 import sys
 import numpy as np, pandas as pd
@@ -17,8 +17,8 @@ XLIM = {"near-unpenalized": 6, "CV lam given mu": 1.6}
 COL = {"no drift": "0.35", "drift": "#C44E52"}
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "org"
-assert MODE in ("org", "gsplit"), MODE
-SUF = "" if MODE == "org" else "_gsplit"
+assert MODE in ("org", "gmerge", "gsplit"), MODE
+SUF = "" if MODE == "org" else f"_{MODE}"
 
 g = pd.read_csv(f"out/drift19{SUF}_groups.csv")
 cv = pd.read_csv(f"out/drift19{SUF}_cv.csv").groupby(["mu", "lam"]).sse.sum()
