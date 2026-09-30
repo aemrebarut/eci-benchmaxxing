@@ -14,7 +14,9 @@ on the dense Jacobian. delta is reported on the ECI scale (times Epoch's affine 
 
 SEs: sandwich clustered by model, H^-1 (sum over models of s_g s_g') H^-1 with H = J'J + penalty; and the
 model-based sigma^2 H^-1. With the ridge these are SEs of shrunken estimates (prediction error variance).
-Writes out/prepost17.md, out/prepost17_groups.csv, out/prepost17_cv.csv and out/figs/prepost17.png."""
+Usage: python analysis/17_prepost.py [year_org | org]. "org" drops the year: one delta per organization.
+Writes out/prepost17<suffix>.md, _groups.csv, _cv.csv and out/figs/prepost17<suffix>.png, suffix "" for
+year_org and "_org" for org."""
 import os, sys, time
 os.environ.update(OMP_NUM_THREADS="1", VECLIB_MAXIMUM_THREADS="1", OPENBLAS_NUM_THREADS="1")
 import numpy as np, pandas as pd
@@ -28,6 +30,10 @@ import matplotlib.pyplot as plt
 import cm
 
 LAMS = [1e-3, 1e-2, 0.1, 0.3, 1, 3, 10, 30, 100, 1e3]
+MODE = sys.argv[1] if len(sys.argv) > 1 else "year_org"
+assert MODE in ("year_org", "org"), MODE
+SUF = "" if MODE == "year_org" else "_org"
+GLABEL = "(year, organization)" if MODE == "year_org" else "organization"
 EPOCH_REG = 0.1
 
 df, ORG = cm.load()
@@ -45,7 +51,7 @@ free_a = np.array([j for j in range(B) if j != anchor])
 lo_i, hi_i = models.index(DEFAULT_ANCHOR_MODEL_LOW), models.index(DEFAULT_ANCHOR_MODEL_HIGH)
 
 both = df.groupby("Model").post.agg(lambda s: 0 < s.mean() < 1)
-df["group"] = df.year.astype(str) + " | " + df.org
+df["group"] = df.year.astype(str) + " | " + df.org if MODE == "year_org" else df.org
 ident = sorted(df[df.Model.map(both)].group.unique())
 gi_of = {g: k for k, g in enumerate(ident)}
 gi = df.group.map(gi_of).fillna(-1).astype(int).to_numpy()
@@ -144,7 +150,7 @@ for lam in LAMS + [np.inf]:
         cv.append(dict(lam=lam, fold=f, sse=float(((sigmoid(e[te]) - y[te]) ** 2).sum()), n=int(te.sum())))
     print(f"lam {lam:g}: cv sse {sum(c['sse'] for c in cv if c['lam'] == lam):.5f} ({time.time() - t:.1f}s)", flush=True)
 cv = pd.DataFrame(cv)
-cv.to_csv("out/prepost17_cv.csv", index=False)
+cv.to_csv(f"out/prepost17{SUF}_cv.csv", index=False)
 tab = cv.groupby("lam").sse.sum()
 ref = cv[cv.lam == np.inf].set_index("fold").sse
 better = {lam: int((cv[cv.lam == lam].set_index("fold").sse < ref).sum()) for lam in LAMS}
@@ -188,16 +194,16 @@ def wald_equal(d, V, idx):
 
 
 info = pd.DataFrame(dict(group=ident))
-info["year"] = [int(g.split(" | ")[0]) for g in ident]
-info["org"] = [g.split(" | ")[1] for g in ident]
+info["year"] = [int(g.split(" | ")[0]) for g in ident] if MODE == "year_org" else "all"
+info["org"] = [g.split(" | ")[1] for g in ident] if MODE == "year_org" else ident
 g_df = df[has]
 info["models"] = [g_df[g_df.group == g].Model.nunique() for g in ident]
 info["models_both"] = [int(both[g_df[g_df.group == g].Model.unique()].sum()) for g in ident]
 info["cells_pre"] = [int(((g_df.group == g) & (g_df.post == 0)).sum()) for g in ident]
 info["cells_post"] = [int(((g_df.group == g) & (g_df.post == 1)).sum()) for g in ident]
 
-L = ["# Pre/post shift by year and organization (analysis/17_prepost.py)", "",
-     f"{K} (year, organization) groups identified (at least one model with cells on both sides of its release), "
+L = [f"# Pre/post shift by {GLABEL} (analysis/17_prepost.py {MODE})", "",
+     f"{K} {GLABEL} groups identified (at least one model with cells on both sides of its release), "
      f"{int(has.sum())} of {n} cells in them. Unidentified groups: "
      f"{sorted(set(df.group) - set(ident))}.", "",
      f"No-delta fit (exact solver) against Epoch's published-code fit: max ECI difference {(eci0 - rep.reindex(models)).abs().max():.3f}.", "",
@@ -219,6 +225,8 @@ for label, lam in [("CV ridge", lam_cv), ("near-unpenalized", LAMS[0])]:
         L.append(f"- SE {Vname}: weighted mean delta {m_all:+.2f} +- {s_all:.2f} (z {m_all / s_all:+.2f}, "
                  f"p {2 * stats.norm.sf(abs(m_all / s_all)):.3f}); all groups equal: Wald {W:.1f} on {k} df, "
                  f"p {stats.chi2.sf(W, k):.3f}.")
+        if MODE != "year_org":
+            continue
         ym = []
         for yr in sorted(info.year.unique()):
             idx = np.flatnonzero(info.year == yr)
@@ -234,14 +242,14 @@ L += ["## Groups (ECI points; se_cl clustered by model, se_mb model-based)", "",
 for _, r in info.sort_values(["year", "org"]).iterrows():
     L.append(f"| {r.year} | {r.org} | {r.models} | {r.models_both} | {r.cells_pre} | {r.cells_post} | "
              + " | ".join(f"{r['delta_' + k]:+.2f} | {r['se_cl_' + k]:.2f} | {r['se_mb_' + k]:.2f}" for k in ("CV ridge", "near-unpenalized")) + " |")
-info.round(4).to_csv("out/prepost17_groups.csv", index=False)
-open("out/prepost17.md", "w").write("\n".join(L) + "\n")
+info.round(4).to_csv(f"out/prepost17{SUF}_groups.csv", index=False)
+open(f"out/prepost17{SUF}.md", "w").write("\n".join(L) + "\n")
 print("\n".join(L))
 
 # Figure: delta by group with 2 SE, both fits. The clustered SE is too small with one or two models per group,
 # so the bars use the larger of the clustered and model-based SEs
 yrs = sorted(info.year.unique())
-cols = {2023: "#8172B3", 2024: "#55A868", 2025: "#C44E52", 2026: "#4C72B0"}
+cols = {2023: "#8172B3", 2024: "#55A868", 2025: "#C44E52", 2026: "#4C72B0", "all": "#4C72B0"}
 t = info.sort_values(["year", "cells_post"], ascending=[True, False]).reset_index(drop=True)
 fig, ax = plt.subplots(figsize=(8, 0.28 * len(t) + 1.5))
 yy = np.arange(len(t))[::-1]
@@ -253,11 +261,11 @@ for label, off, mk in [("near-unpenalized", 0.17, "o"), ("CV ridge", -0.12, "s")
                     color=cols[yr], mfc="white" if label == "near-unpenalized" else cols[yr], lw=1.1 if label == "CV ridge" else 0.8,
                     alpha=1 if label == "CV ridge" else 0.6)
 ax.axvline(0, color="0.4", lw=0.8)
-ax.set_yticks(yy, [f"{r.year} {r.org[:26]} ({r.models_both}/{r.models}, {r.cells_pre}/{r.cells_post})" for r in t.itertuples()], fontsize=7.5)
+ax.set_yticks(yy, [f"{r.year if MODE == 'year_org' else ''} {r.org[:26]} ({r.models_both}/{r.models}, {r.cells_pre}/{r.cells_post})" for r in t.itertuples()], fontsize=7.5)
 ax.set_xlabel("delta = tau_post - tau_pre (ECI points), +-2 SE (larger of clustered and model-based)")
-ax.set_title(f"Pre/post shift by year and organization. Filled: ridge, lam = {lam_cv:g} (CV); open: lam = {LAMS[0]:g}\n"
+ax.set_title(f"Pre/post shift by {GLABEL}. Filled: ridge, lam = {lam_cv:g} (CV); open: lam = {LAMS[0]:g}\n"
              "labels: (models with cells on both sides / models, cells pre / post)", fontsize=9)
 ax.set_xlim(-25, 25)
 fig.tight_layout()
-fig.savefig("out/figs/prepost17.png", dpi=150)
-print("wrote out/figs/prepost17.png")
+fig.savefig(f"out/figs/prepost17{SUF}.png", dpi=150)
+print(f"wrote out/figs/prepost17{SUF}.png")
