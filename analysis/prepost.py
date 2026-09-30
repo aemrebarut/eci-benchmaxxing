@@ -169,6 +169,18 @@ class PrePost:
         return b * x[sl], b ** 2 * Vc[sl, sl], b ** 2 * Vm[sl, sl], b, edf
 
 
+GOOGLE = {"Google DeepMind", "Google DeepMind,Google", "Google"}
+
+
+def org_groups(df, mode="org"):
+    """Group label per cell: the organization ("org"), or ("gsplit") the same with Google's three organization names in
+    Epoch's data merged and split by family into Google DeepMind (Gemini) and Google DeepMind (Gemma)."""
+    if mode == "org":
+        return df.org
+    fam = np.select([df.Model.str.contains("Gemma"), df.Model.str.contains("Gemini")], ["Gemma", "Gemini"], "other")
+    return pd.Series(np.where(df.org.isin(GOOGLE), "Google DeepMind (" + pd.Series(fam, index=df.index) + ")", df.org), index=df.index)
+
+
 def wmean(d, V, idx):
     """Inverse-variance weighted mean over idx (weights from the diagonal), SE from the full covariance."""
     w = np.zeros(len(d)); w[idx] = 1 / np.diag(V)[idx]; w /= w.sum()

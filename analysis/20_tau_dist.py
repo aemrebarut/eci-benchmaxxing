@@ -2,26 +2,39 @@
 its CV choice mu), for the near-unpenalized fit (lam 1e-3) and the CV ridge. Each organization's estimate is shown as
 a point with +-1 and +-2 SE and as its normal sampling distribution N(delta, SE^2), SE the larger of the clustered
 and model-based SEs. ECI points in each fit's own scale (b differs with the drift); z = delta / SE is scale-free.
-Reads out/drift19_groups.csv, out/drift19_cv.csv and out/prepost17_org_groups.csv; writes out/tau20.md and
-out/figs/tau20_near.png, out/figs/tau20_cv.png."""
+Usage: python analysis/20_tau_dist.py [org | gsplit] (the grouping of analysis/19_drift.py). Reads
+out/drift19<suffix>_groups.csv and _cv.csv; writes out/tau20<suffix>.md and out/figs/tau20<suffix>_near.png, _cv.png."""
+import sys
 import numpy as np, pandas as pd
 from scipy import stats
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import cm
+from prepost import PrePost, org_groups
 
 XLIM = {"near-unpenalized": 6, "CV lam given mu": 1.6}
 COL = {"no drift": "0.35", "drift": "#C44E52"}
 
-g = pd.read_csv("out/drift19_groups.csv")
-cv = pd.read_csv("out/drift19_cv.csv").groupby(["mu", "lam"]).sse.sum()
+MODE = sys.argv[1] if len(sys.argv) > 1 else "org"
+assert MODE in ("org", "gsplit"), MODE
+SUF = "" if MODE == "org" else "_gsplit"
+
+g = pd.read_csv(f"out/drift19{SUF}_groups.csv")
+cv = pd.read_csv(f"out/drift19{SUF}_cv.csv").groupby(["mu", "lam"]).sse.sum()
 MU = float(cv.idxmin()[0])
-info = pd.read_csv("out/prepost17_org_groups.csv").set_index("org")
+df, ORG = cm.load()
+df["org"] = df.Model.map(ORG).fillna("unknown")
+pp = PrePost(df, org_groups(df, MODE))
+d_id = pp.df[pp.has].assign(group=pp.group[pp.has])
+info = pd.DataFrame({o: dict(models=h.Model.nunique(), models_both=int(pp.both[h.Model.unique()].sum()),
+                             cells_pre=int((pp.post[h.index] == 0).sum()), cells_post=int((pp.post[h.index] == 1).sum()))
+                     for o, h in d_id.groupby("group")}).T
 g = g[g.mu.isin([MU, np.inf])].copy()
 g["model"] = np.where(np.isfinite(g.mu), "drift", "no drift")
 g["z"] = g.delta / g.se
 
-L = [f"# Organization shifts without and with the benchmark drift (analysis/20_tau_dist.py)", "",
+L = [f"# Organization shifts without and with the benchmark drift (analysis/20_tau_dist.py {MODE})", "",
      f"delta = tau_post - tau_pre in ECI points of each fit; drift at the CV choice mu = {MU:g}. SE: larger of clustered "
      "and model-based; se_cl and se_mb listed. Organizations ordered by the no-drift near-unpenalized SE.", ""]
 for fit, fname in [("near-unpenalized", "near"), ("CV lam given mu", "cv")]:
@@ -70,7 +83,7 @@ for fit, fname in [("near-unpenalized", "near"), ("CV lam given mu", "cv")]:
                  "labels: (models with cells on both sides / models, cells pre / post); numbers: delta +- SE; arrows: point off scale",
                  fontsize=10)
     fig.tight_layout(w_pad=7)
-    fig.savefig(f"out/figs/tau20_{fname}.png", dpi=140, bbox_inches="tight")
+    fig.savefig(f"out/figs/tau20{SUF}_{fname}.png", dpi=140, bbox_inches="tight")
     plt.close(fig)
 
     L += [f"## {fit} (no drift: lam {lams['no drift']:g}; drift: lam {lams['drift']:g}, mu {MU:g})", "",
@@ -83,5 +96,5 @@ for fit, fname in [("near-unpenalized", "near"), ("CV lam given mu", "cv")]:
     zz = t[[("z", "no drift"), ("z", "drift")]]
     L += ["", f"|z| >= 2: {int((zz[('z', 'no drift')].abs() >= 2).sum())} without drift, {int((zz[('z', 'drift')].abs() >= 2).sum())} with. "
           f"Positive estimates: {int((t[('delta', 'no drift')] > 0).sum())} of {len(t)} without drift, {int((t[('delta', 'drift')] > 0).sum())} with.", ""]
-open("out/tau20.md", "w").write("\n".join(L) + "\n")
+open(f"out/tau20{SUF}.md", "w").write("\n".join(L) + "\n")
 print("\n".join(L))
