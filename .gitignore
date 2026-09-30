@@ -9,3 +9,4 @@ data/*
 !data/SNAPSHOT.json
 !data/benchmark_data.zip
 !data/README.md
+!data/benchmark_filtering.csv
