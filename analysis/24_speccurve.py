@@ -66,7 +66,7 @@ def main():
         add(f"donut {round(r.val * 12)} month{'s' if round(r.val * 12) > 1 else ''}", r.struct, r.c_z_mb, "data")
     for r in pl[pl.kind == "bandwidth"].itertuples():
         add(f"bandwidth {r.val:g} year{'s' if r.val != 1 else ''}", r.struct, r.c_z_mb, "data")
-    # headline refit on the 2026-10-01 snapshot (session log of 2026-10-01, 16:15)
+    # headline refit on Epoch's 2026-10-01 snapshot (data/snapshot-2026-10-01/): analysis/32_snapshot_refit.py
     add("data of 2026-10-01", "epoch", 3.05, "data")
     add("data of 2026-10-01", "drift", 3.17, "data")
     q = read("quasi")
