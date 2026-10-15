@@ -5,7 +5,7 @@ borderline; built from Epoch's benchmark pages and the benchmarks' own papers on
 An agentic indicator is a property of the benchmark, so a term common to all labs is absorbed by D_j; a term for one
 lab measures that lab's models on agentic benchmarks relative to the labs without a term. Fits, each without and with
 the benchmark drift (mu 0.1), near-unpenalized (lam 1e-3):
-  step         the step model alone (reproduces Google's +1.55 and the contrast)
+  step         the step model alone (reproduces Google's +1.41 and the contrast)
   g_agentic    plus one term for Google's models on agentic benchmarks
   lab_agentic  plus one term for each of the seven largest labs
   g_agentic_x  plus Google's agentic term and its interaction with post: Google's step on agentic benchmarks minus

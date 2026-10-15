@@ -4,5 +4,5 @@
   "bytes": 2353329,
   "sha256": "2724276ccce9513f6380422a48a9f094ee9142c612362a535021d9eb3f75b93d",
   "license": "CC-BY 4.0, Epoch AI",
-  "note": "Update of the 2026-09-29 snapshot: 51 new cells (GPT-6 Sol 15, GPT-6 Luna 15, GPT-6.1 Sol 12, Grok 4.7 8, Claude Opus 5.5 on FrontierCode 1); no existing cell, date or organization changed. The analyses use the 2026-09-29 snapshot in data/."
+  "note": "Update of the 2026-09-29 snapshot: 51 new cells (GPT-6 Sol 15, GPT-6 Luna 15, GPT-6.1 Sol 12, Grok 4.7 8, Claude Opus 5.5 on FrontierCode 1); no existing cell, date or organization changed. The analyses used the 2026-09-29 snapshot (now in data/snapshot-2026-09-29/) until 2026-10-15."
 }

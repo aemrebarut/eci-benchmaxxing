@@ -2,7 +2,7 @@
 benchmark date hide a real step at the release date?
 
 Two simulated worlds, each built from a fit to the real data:
-  step   the step model of Chapter 1 as fitted (Google's step +1.55 ECI points without drift), no lab curves
+  step   the step model of Chapter 1 as fitted (Google's step +1.41 ECI points without drift), no lab curves
   curve  lab quadratics in benchmark date for the seven largest labs, with Google's step pinned at 0
 Simulated scores are the world's fitted values plus its residuals with one Rademacher sign per model (as in the wild
 bootstrap of analysis/23_appendix.py, which keeps each model's residual pattern but cancels any systematic one). Each

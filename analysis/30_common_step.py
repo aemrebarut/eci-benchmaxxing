@@ -5,7 +5,7 @@ the model was released,
 
 identified through the models with cells on both sides of their release. The first rung of the ladder in the blog
 Part 1 (blogpost/part1.md). Near-unpenalized (lam 1e-3), without and with the benchmark drift (mu 0.1, as in
-analysis/19_drift.py), on the 2026-09-29 snapshot; model-based and clustered SEs as in analysis/17_prepost.py. The
+analysis/19_drift.py), on the 2026-10-15 snapshot; model-based and clustered SEs as in analysis/17_prepost.py. The
 held-out change against Epoch's model uses the 10 folds of 17 and 19 (seed 7).
 Usage: python analysis/30_common_step.py. Writes out/p1_common_step.csv (estimates) and out/p1_common_step_cv.csv."""
 import os, sys, time

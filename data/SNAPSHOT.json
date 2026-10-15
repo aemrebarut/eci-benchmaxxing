@@ -1,7 +1,8 @@
 {
   "url": "https://epoch.ai/data/benchmark_data.zip",
-  "retrieved_at": "2026-09-29T14:21:22-07:00",
-  "bytes": 2321615,
-  "sha256": "5fcf05788642207c1482f910dac19789d22f6ad4d9bfc2e104cd846a215fda74",
-  "license": "CC-BY 4.0, Epoch AI"
+  "retrieved_at": "2026-10-15T15:38:53-07:00",
+  "bytes": 2408941,
+  "sha256": "ad4d34ee93aa4e5d5e28c75a679e3f21845cf850cd7a6bcb9af7776bd4b1ee55",
+  "license": "CC-BY 4.0, Epoch AI",
+  "note": "Update of the 2026-09-29 snapshot (data/snapshot-2026-09-29/): 2995 cells for 278 models on 61 benchmarks, against 2843, 270 and 60. 155 new cells: 8 new models (Claude Haiku 5.5 14, GPT-6 Luna 16, GPT-6 Sol 17, GPT-6.1 Sol 15, Gemini 4 Argon 13, Grok 4.7 16, Mistral Large 4 8, Muse Wonder 5) and 51 on existing models, with one new benchmark (SpireClimb); 3 cells removed (METR Time Horizons for GPT-4 Jun 2023, GPT-4o Aug 2024 and GPT-4o Nov 2024); 65 scores revised (Chess Puzzles 62, ARC-AGI 1, ARC-AGI-2 1, Terminal Bench 1). The analyses use this snapshot."
 }

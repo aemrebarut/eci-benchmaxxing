@@ -13,7 +13,7 @@ python3 -m venv .venv
 .venv/bin/python analysis/00_reproduce.py       # refits Epoch's baseline ECI
 ```
 
-Epoch republishes `benchmark_data.zip` as new results arrive, so this repo includes the snapshot our results use (`data/benchmark_data.zip`, sha256 in `data/SNAPSHOT.json`). `scripts/get_data.py` without flags fetches the latest version instead.
+Epoch republishes `benchmark_data.zip` as new results arrive, so this repo includes the snapshot our results use (`data/benchmark_data.zip`, retrieved 2026-10-15, sha256 in `data/SNAPSHOT.json`). The earlier snapshots of 2026-09-29 and 2026-10-01 are kept in `data/snapshot-<date>/`, and `analysis/32_snapshot_refit.py` refits the headline on either. `scripts/get_data.py` without flags fetches the latest version instead.
 
 The scripts in `analysis/` are numbered in the order they were written; each one's docstring says what it reads, what it writes to `out/` and how to run it. Run `analysis/08_data_check.py` first, because the later analyses read its `out/data_check08.csv`. Run `analysis/23_appendix.py` (one study per run) before `analysis/24_speccurve.py`, and `analysis/28_movement.py` before `analysis/29_launch.py`.
 

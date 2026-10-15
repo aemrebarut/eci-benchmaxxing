@@ -23,7 +23,7 @@ Usage, from the repo root:
 
 Datasets:
   zip        prepare_benchmark_data(source="data/benchmark_data.zip"), i.e.
-             the raw data in the 2026-09-29 snapshot (newer than the
+             the raw data in the 2026-10-15 snapshot (newer than the
              published scores).
   published  epoch_capabilities_index/processed_data_for_eci.csv from the
              same zip: Epoch's own fit input behind the published
