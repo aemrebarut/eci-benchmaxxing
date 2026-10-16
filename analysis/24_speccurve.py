@@ -23,7 +23,7 @@ def main():
     u = read("unpen")
     for r in u.itertuples():
         if r.setting.startswith("near"):
-            add("model-based (Chapter 1)", r.struct, r.c_z_mb, "inference")
+            add("model-based (Part 1)", r.struct, r.c_z_mb, "inference")
             add("clustered by model", r.struct, r.c_z_cl, "inference")
         else:
             add("no ridge", r.struct, r.c_z_mb, "structure")
