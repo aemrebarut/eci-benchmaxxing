@@ -1,6 +1,7 @@
 """Is Google's step a weakness on agentic benchmarks? The step model (analysis/17_prepost.py and 19_drift.py, Google
 merged) with lab-by-agentic terms, using the classification in data/benchmark_types.csv (agentic: yes, no or
-borderline; built from Epoch's benchmark pages and the benchmarks' own papers on 2026-10-02).
+borderline; built from Epoch's benchmark pages and the benchmarks' own papers on 2026-10-02, SpireClimb added on
+2026-10-15).
 
 An agentic indicator is a property of the benchmark, so a term common to all labs is absorbed by D_j; a term for one
 lab measures that lab's models on agentic benchmarks relative to the labs without a term. Fits, each without and with
